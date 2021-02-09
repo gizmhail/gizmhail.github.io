@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+        <meta charset="utf-8" />
+        <meta name="generator" content="Pelican" />
+        <title>Débuter en réalité virtuelle avec Unity et Oculus Quest - Mise en place du projet (partie 2)</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+      <link rel="alternate" hreflang="fr" href="/oculus-quest-vr-intro-2.html">
+
+        <meta name="description" content="Cette seconde partie fait suite à l’intro expliquant les choix hardware/logiciel de ce tutorial. Nous allons mettre ici en place le projet, et le..." />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Gizmhail's blog</a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/vr.html">VR</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/oculus-quest-vr-intro-2-en.html" rel="bookmark"
+           title="Permalink to Débuter en réalité virtuelle avec Unity et Oculus Quest - Mise en place du projet (partie 2)">Débuter en réalité virtuelle avec Unity et Oculus Quest - Mise en place du projet (partie 2)</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2021-01-21T23:15:00+01:00">
+                Published: jeu. 21 janvier 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/gizmhail.html">Gizmhail</a>
+        </address>
+<p>In <a href="/category/vr.html">VR</a>.</p>
+<p>tags: <a href="/tag/oculus-quest.html">Oculus Quest</a> <a href="/tag/vr.html">VR</a> <a href="/tag/xr.html">XR</a> <a href="/tag/tutorial.html">Tutorial</a> <a href="/tag/development.html">Development</a> <a href="/tag/oculus-quest-dev-intro.html">Oculus quest Dev Intro</a> </p>Translations:
+        <a href="/oculus-quest-vr-intro-2.html" hreflang="fr">fr</a>
+
+</footer><!-- /.post-info -->      <p><em>Cette seconde partie fait suite à l’intro expliquant les choix hardware/logiciel de ce tutorial.</em></p>
+<p><em>Nous allons mettre ici en place le projet, et le rendre compatible VR.</em></p>
+<h1>Couches d’une application VR</h1>
+<p>Il y a plusieurs couches à prendre en compte dans une application VR :</p>
+<ol>
+<li>le module s’assurant que notre casque est supporté dans Unity</li>
+<li>la détection de la position des casques/contrôleurs</li>
+<li>la stack d’intéraction : comment gérer le fait d’attraper des objets, se déplacer/téléporter, avoir des pointeurs, interagir avec l’UI, animer les mains, …</li>
+</ol>
+<p>Pour le 1), nous allons dans la mise en place du projet installer le XR Plug-in system, et son plugin Oculus. Il y a d’autres choix, suivant le hardware et les versions d’Unity, mais celui-là semble être le plus pédagogique pour ce que sera à l’avenir la VR dans Unity.</p>
+<p>Pour le 2), dans cette partie, nous ferons ici un choix très simple, afin d’avoir le plus grand contrôle sur ce que l’on fait pour bien comprendre.</p>
+<p>Pour le 3), nous allons initier ici le projet comme si on voulait tout faire à la main (ce qui est assez pédagogique), et donc juste s’intéresser à savoir quand les boutons du contrôleur sont enfoncés.</p>
+<p>Je proposerai certainement dans un article ultérieur une alternative pour le 2) et 3) qui permet d’avoir un environnement riche très rapidement, mais avec un contrôle moins complet.</p>
+<h1>Mise en place du projet</h1>
+<ol>
+<li>Création d’un projet dans Unity : choisir le template de projet “3D”</li>
+<li>Aller dans Project Settings &gt; XR Plugin Management, et cliquer sur “Install XR Plugin Management”</li>
+<li>Plug-in provider : cocher “Oculus”</li>
+</ol>
+<p id="gdcalert1" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image1.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert2">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+
+<p><img alt="alt_text" src="images/image1.png" title="image_tooltip"></p>
+<ol>
+<li>Si vous comptez utiliser git avec votre projet, je vous invite à utilise un fichier .gitignore de ce type, pour éviter de tracker tous les fichiers générés/temporaires : <a href="https://github.com/github/gitignore/blob/master/Unity.gitignore">https://github.com/github/gitignore/blob/master/Unity.gitignore</a></li>
+</ol>
+<h1>Suivi du casques et des mains</h1>
+<p>Il existe plusieurs manières de préparer une scène pour détecter votre casque VR, et ses contrôleurs :</p>
+<ul>
+<li>utiliser les composants simples TrackedPoseDriver : c’est ce que nous allons voir ici, pour montrer ce qu’on peut avoir en quelques clics</li>
+<li>utiliser le package XR Interaction Toolkit : c’est probablement une solution d’avenir, car géré par Unity directement. Cependant elle est encore en phase de prototype, donc on essuie de fait les plâtres en se basant dessus en ce moment</li>
+<li>utiliser un SDK dédié à un matériel, Oculus Integration ou SteamVR par exemple</li>
+<li>utiliser manuellement les appels à un InputDevice du module UnityEngine.XR (et tout refaire ce que font les exemples précédents à la main donc, mais avec un contrôle complet)</li>
+</ul>
+<p>La solution que l’on va donc utiliser ici se base sur le composant TrackedPoseDriver.</p>
+<p>Il permet de dire qu’un GameObject prend comme position relative à son parent la position dans la réalité d’une pièce de hardware VR (casque, contrôleur, …)</p>
+<h1>Préparation de la scène</h1>
+<h2>Caméra</h2>
+<p>Sur une scène neuve (avec vraiment aucune manipulation après sa création), il y a un moyen très rapide de placer correctement le TrackedPoseDriver faisant que la caméra suive la position de votre tête :</p>
+<ol>
+<li>Sélectionner l’objet Main Caméra</li>
+<li>Clic-droit dessus &gt; XR &gt; Concert main camera to XR Rig</li>
+</ol>
+<p>Cela crée un ensemble d’objet de base, XR Rig, incluant la caméra et son TrackedposeDriver.</p>
+<p id="gdcalert2" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image2.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert3">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+
+<p><img alt="alt_text" src="images/image2.png" title="image_tooltip"></p>
+<p>Cela rajoute en “bonus” un composant CameraOffset permettant de gérer comment est calculée la hauteur du casque par rapport au sol.</p>
+<p>Le défaut de cette solution est que la moindre modification sur la scène l'empêche de marcher.</p>
+<p>Mais manuellement, pour obtenir quelque chose de proche, il suffit en fait fr :</p>
+<ul>
+<li>ajouter un composant TrackedPoseDriver sur le GameObject contenant la caméra.</li>
+<li>mettre dans device : Generic XR Device</li>
+<li>mettre dans Pose source : Center eye</li>
+</ul>
+<p>Attention, si vous voulez par code déplacer l’utilisateur (téléportation, véhicule), il faut que votre caméra soit dans un objet parent, qui sera l’objet que vous déplacerez. Dans le cas du système automatisé décrit en début de chapitre, l’object XRRig généré est celui à déplacer.</p>
+<h2>Contrôleurs</h2>
+<p>Pour suivre les contrôleurs VR, pour chaque main :</p>
+<ul>
+<li>créez un objet vide</li>
+<li>ajoutez un Tracked pose driver</li>
+<li>en device, choisissez Generic XR Controller</li>
+<li>en Pose source, choisir la main qui nous intéresse</li>
+<li>pour “voir la main”, pensez à ajouter en fils de cet objet quelque chose de visible, comme un cube</li>
+</ul>
+<p id="gdcalert3" ><span style="color: red; font-weight: bold">>>>>>  gd2md-html alert: inline image link here (to images/image3.png). Store image on your image server and adjust path/filename/extension if necessary. </span><br>(<a href="#">Back to top</a>)(<a href="#gdcalert4">Next alert</a>)<br><span style="color: red; font-weight: bold">>>>>> </span></p>
+
+<p><img alt="alt_text" src="images/image3.png" title="image_tooltip"></p>
+<h1>Tester en direct</h1>
+<p>Si vous avez un casque branché sur votre PC (un casque PC, ou un Oculus Quest branché avec un câble de type Link), quand vous appuierez sur play dans l’éditeur Unity, en quelques secondes, votre application se lancera dans votre casque, et vous pourrez toujours la manipuler dans l’éditeur en direct.</p>
+<h1>Connaître l’état des boutons grab/trigger des contrôleurs</h1>
+<p>Il y a également plusieurs solutions pour obtenir l’état des boutons sur Unity.</p>
+<p>Mais, dans l’idée de viser l’état de l’art actuel, la nouvelle solution poussée par Unity est l’utilisation de l’Input System Package et d’input actions.</p>
+<p><em>Remarque : si vous voulez utiliser la manière plus ancienne  de déterminer les boutons préssés car vous y êtes habitué, cette page vous donnera les id de boutons/axes dans l’ancien système : <a href="https://docs.unity3d.com/2019.2/Documentation/Manual/OculusControllers.html">https://docs.unity3d.com/2019.2/Documentation/Manual/OculusControllers.html</a></em></p>
+<p>Pour activer l’Input Manager:</p>
+<ul>
+<li>Installer l’Input System<ul>
+<li>Window &gt; Package Manager</li>
+<li>en haut, choisir Packages : Unity registry</li>
+<li>Choisir Input system, install</li>
+</ul>
+</li>
+<li>Choisir l’Input System comme système d’Input<ul>
+<li>Edit &gt; Project settings &gt; PLayer &gt; Other settings:configuration &gt; Active Input Handling : Input System Package (new)</li>
+<li>(Unity redémarre)</li>
+</ul>
+</li>
+<li></li>
+</ul>
+<p>Maintenant, voici un petit script utilisant une action :</p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span> <span class="nn">UnityEngine</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">UnityEngine.InputSystem</span><span class="p">;</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">XRControllerState</span> <span class="p">:</span> <span class="n">MonoBehaviour</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="n">InputAction</span> <span class="n">grabAction</span><span class="p">;</span>
+
+    <span class="k">void</span> <span class="nf">Awake</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">grabAction</span><span class="p">.</span><span class="n">performed</span> <span class="p">+=</span> <span class="n">OnGrabStart</span><span class="p">;</span>
+        <span class="n">grabAction</span><span class="p">.</span><span class="n">canceled</span> <span class="p">+=</span> <span class="n">OnGrabEnd</span><span class="p">;</span>
+        <span class="n">grabAction</span><span class="p">.</span><span class="n">Enable</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="k">void</span> <span class="nf">OnGrabStart</span><span class="p">(</span><span class="n">InputAction</span><span class="p">.</span><span class="n">CallbackContext</span> <span class="n">obj</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">Debug</span><span class="p">.</span><span class="n">Log</span><span class="p">(</span><span class="s">&quot;OnGrabStart&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="k">void</span> <span class="nf">OnGrabEnd</span><span class="p">(</span><span class="n">InputAction</span><span class="p">.</span><span class="n">CallbackContext</span> <span class="n">obj</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">Debug</span><span class="p">.</span><span class="n">Log</span><span class="p">(</span><span class="s">&quot;OnGrabEnd&quot;</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p>Dans l’inspecteur, quand vous ajoutez ce composant sur la main gauche par exemple, vous pouvez y ajouter une action pour détecter quand on appuie sur le bouton pour attraper, le grip :</p>
+<ul>
+<li>sur “Grab action”, cliquez sur +</li>
+<li>Choisir dans le menu “Add binding”</li>
+<li>Double-cliquez sur “No binding”</li>
+<li>Dans Path, choissir XR Controller &gt; Oculus Touch Contorller &gt; (Oculus Touch controller (Left hand) &gt; gripPressed</li>
+</ul>
+<p>De la même manière, l’action triggerPressed fournira elle l’activation de la gâchette avant.</p>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="https://getpelican.com/">Pelican</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="https://twitter.com/spoivre">@spoivre</a></li>
+                            <li><a href="https://twitter.com/gizmhail">Personal account: @gizmhail</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

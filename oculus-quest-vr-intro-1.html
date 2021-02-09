@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+        <meta charset="utf-8" />
+        <meta name="generator" content="Pelican" />
+        <title>Débuter en réalité virtuelle avec Unity et Oculus Quest - Intro (partie 1)</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <meta name="description" content="Vous avez eu pour Noël un Oculus Quest 2, et fasciné par Beat Saber, Superhot, Tetris Effect et autres Titans of space, vous rêveriez vous aussi..." />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Gizmhail's blog</a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/vr.html">VR</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/oculus-quest-vr-intro-1.html" rel="bookmark"
+           title="Permalink to Débuter en réalité virtuelle avec Unity et Oculus Quest - Intro (partie 1)">Débuter en réalité virtuelle avec Unity et Oculus Quest - Intro (partie 1)</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2021-01-20T23:00:00+01:00">
+                Published: mer. 20 janvier 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/gizmhail.html">Gizmhail</a>
+        </address>
+<p>In <a href="/category/vr.html">VR</a>.</p>
+<p>tags: <a href="/tag/oculus-quest.html">Oculus Quest</a> <a href="/tag/vr.html">VR</a> <a href="/tag/xr.html">XR</a> <a href="/tag/tutorial.html">Tutorial</a> <a href="/tag/development.html">Development</a> <a href="/tag/oculus-quest-dev-intro.html">Oculus quest Dev Intro</a> </p>
+</footer><!-- /.post-info -->      <p><em>Vous avez eu pour Noël un Oculus Quest 2, et fasciné par Beat Saber, Superhot, Tetris Effect et autres Titans of space, vous rêveriez vous aussi de faire votre appli VR.</em></p>
+<p><em>Pas de souci, c’est à portée de clavier !</em></p>
+<p><em>Et si savoir que vous pourrez crafter de la VR est à 2 doigts de vous faire chuter dans un achat en VR, l’aventure vous attend ;)</em></p>
+<p><em>Pour cette première partie, je vous donne quelques éléments de contexte sur les choix de ce tutorial, avant de rentrer dans la pratique par la suite.</em></p>
+<h1>Hardware</h1>
+<p>La plupart des explications que nous verrons par la suite sont pertinentes pour différents casques autonomes (Oculus Quest, Oculus Quest 2, HTC Vive Focus Plus), ainsi que pour la plupart des casques PC (Oculus Rift, HTC Vive, Valve Index, …).  </p>
+<p>Si j’oriente un peu cette explication sur l'Oculus Quest 2, c’est qu’actuellement, pour faire de la réalité virtuelle, l’Oculus Quest 2 est un appareil extrêmement adapté(*) :</p>
+<ul>
+<li>il est relativement peu cher : 350€ (**)</li>
+<li>on est sur un casque de qualité, captant très bien la position de l’utilisateur dans l’espace, ce qui évite d’être malade(***) ,</li>
+<li>il est autonome, et ne nécessite donc pas un ordinateur puissant pour faire tourner vos applications...</li>
+<li>...mais il peut AUSSI servir de casque pour PC, produisant le meilleur des 2 mondes</li>
+</ul>
+<p>(*) : il y a quand même un (très gros) souci dans ce tableau idyllique : Facebook, qui a racheté Oculus, oblige pour le moment de lier son compte Facebook au casque. C’est gênant, très gênant, je suis d’accord. Si éthiquement, cela vous pose souci, comme je disais, il y a des alternatives, mais un peu plus chères. Si vous êtes intéressé, on pourra discuter de ces alternatives dans les commentaires.</p>
+<p>(**) : même si je vous conseille pour le confort de rajouter une sangle Elite et un long cable Link pour brancher au PC, il existe des alternatives non officielles pour ce câble - encore un sujet de discussion possible si besoin :) (si vous êtes une combinaison de radins/pressés/curieux, vous pouvez regarder cet article : <a href="https://www.etr.fr/actualite/7624-test-oculus-link-le-cable-officiel-est-il-vraiment-utile-avec-l-oculus-quest-2.html">https://www.etr.fr/actualite/7624-test-oculus-link-le-cable-officiel-est-il-vraiment-utile-avec-l-oculus-quest-2.html</a>, l’équivalent )</p>
+<p>(***) : c’est un casque 6 DoF, 6 degrés de liberté, pas un casque 3DoF comme ceux qu’on utilise avec des téléphones portables (cardboard, …), et qui eux entraînent souvent des nausées fortes</p>
+<p>Attention cependant, si votre ordi est vraiment très peu puissant, vous aurez probablement des difficultés à tester votre logiciel en live en mode développeur, sur votre ordinateur. Vous pourrez le tester en buildant à chaque fois, mais l’expérience de dév, très agréable en VR sur Unity, deviendra là bien moins fluide.</p>
+<p>Il y a cependant un XR Device Simulator qui pourrait vous aider si c’est votre cas, n’hésitez pas à me contacter si vous voulez creuser cette piste.</p>
+<h1>Logiciel</h1>
+<p><strong>Unity</strong></p>
+<p>Il existe différents moteurs 3D nous permettant de faire de la VR, les plus connus étant Unity, Unreal, et récemment (et en open source) Godot.</p>
+<p>Tout 3 permettent, plus ou moins bien, de faire de la VR.</p>
+<p>Mais aujourd’hui, pour quelqu’un ayant peu de connaissances préalables, Unity est probablement l’environnement le plus pertinent pour se mettre à la VR.</p>
+<p>Pour installer Unity, téléchargez Unity Hub <a href="https://store.unity.com/download-nuo">https://store.unity.com/download-nuo</a>, et choisissez d’installer la version 2020.2</p>
+<p><strong>XR Plug-in management</strong></p>
+<p>Comme cette présentation est une introduction, je vais vous orienter sur les technos à venir, et notamment sur les dernières versions d’Unity, Unity 2020.2.</p>
+<p>Il faut cependant savoir que les versions d’Unity cohabitent assez longuement (il est assez normal d’encore utiliser Unity 2019 aujourd’hui -  c’est d’ailleurs la seule version avec une LTS actuellement).</p>
+<p>Précédemment, le support de la VR était buildé “en dur” dans Unity. Depuis Unity 2019, ils tentent d’aller vers une architecture plus modulaire du moteur Unity, avec différents packages optionnels. Il existait donc 2 manières de supporter la VR en 2019, l’ancien support VR, disparu en version 2020, et le nouveau, que j’aborde ici, le XR Plug-in management system</p>
+<p>Dans ce nouveau système, les casques HTC Vive n’étaient initialement pas supportés; ils le sont, en beta, depuis la 2020.2 (d’où ce choix de version précise ici)</p>
+<p>Ce support se fait par un module intéressant, OpenXR, qui a la velléité de pouvoir supporter tous les casques AR et VR, OpenXR étant un standard visant ce but.</p>
+<p>Cependant, de part ce caractère expérimental, si vous voulez jouer avec un casque HTC vive ou Valve Index, il est tout à fait raisonnable de rester sur Unity 2019 et d’utiliser la stack SteamVR : <a href="https://assetstore.unity.com/packages/tools/integration/steamvr-plugin-32647#description">https://assetstore.unity.com/packages/tools/integration/steamvr-plugin-32647#description</a> .</p>
+<p>Si c’est votre cas, n’hésitez pas à en parler dans les commentaires, cette stack est très facile d’usage également.</p>
+<p>De la même manière, dans l’idée de faire un tutorial couvrant à terme tous les casques une fois le XR Plug-in management system mature, je ne parle pas spécialement du SDK spécifique à Oculus, <a href="https://assetstore.unity.com/packages/tools/integration/oculus-integration-82022">https://assetstore.unity.com/packages/tools/integration/oculus-integration-82022</a>, mais il est également disponible, et est un choix tout à fait pertinent et agréable à utiliser pour développer sur Oculus Quest.</p>
+<p><em>Suite du tutorial: <a href="/oculus-quest-vr-intro-2.html">Partie 2 - Mise en place du projet</a></em></p>
+<p><strong><a href="https://github.com/gizmhail/blog/issues/1">Accès aux commentaires</a></strong></p>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="https://getpelican.com/">Pelican</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="https://twitter.com/spoivre">@spoivre</a></li>
+                            <li><a href="https://twitter.com/gizmhail">Personal account: @gizmhail</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>

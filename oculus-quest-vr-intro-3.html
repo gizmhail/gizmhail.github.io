@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+        <meta charset="utf-8" />
+        <meta name="generator" content="Pelican" />
+        <title>Débuter en réalité virtuelle avec Unity et Oculus Quest - builder pour le casque en autonome (partie 3)</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+        <meta name="description" content="Si jamais vous voulez cibler une application Windows pour casque PC cette partie ne vous est pas utile. Même pour des app Oculus Quest, tant que..." />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Gizmhail's blog</a></h1>
+                <nav><ul>
+                    <li class="active"><a href="/category/vr.html">VR</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+  <article>
+    <header>
+      <h1 class="entry-title">
+        <a href="/oculus-quest-vr-intro-3.html" rel="bookmark"
+           title="Permalink to Débuter en réalité virtuelle avec Unity et Oculus Quest - builder pour le casque en autonome (partie 3)">Débuter en réalité virtuelle avec Unity et Oculus Quest - builder pour le casque en autonome (partie 3)</a></h1>
+    </header>
+
+    <div class="entry-content">
+<footer class="post-info">
+        <abbr class="published" title="2021-01-22T22:00:00+01:00">
+                Published: ven. 22 janvier 2021
+        </abbr>
+
+        <address class="vcard author">
+                By                         <a class="url fn" href="/author/gizmhail.html">Gizmhail</a>
+        </address>
+<p>In <a href="/category/vr.html">VR</a>.</p>
+<p>tags: <a href="/tag/oculus-quest.html">Oculus Quest</a> <a href="/tag/vr.html">VR</a> <a href="/tag/xr.html">XR</a> <a href="/tag/tutorial.html">Tutorial</a> <a href="/tag/development.html">Development</a> <a href="/tag/oculus-quest-dev-intro.html">Oculus quest Dev Intro</a> </p>
+</footer><!-- /.post-info -->      <p><em>Si jamais vous voulez cibler une application Windows pour casque PC cette partie ne vous est pas utile.</em></p>
+<p><em>Même pour des app Oculus Quest, tant que vous ne voulez pas tester sur le casque en autonome (ie. sans être branché au PC), la suite est optionnelle pour développer.</em></p>
+<p><em>Vous en aurez néanmoins besoin assez vite, à minima pour voir si votre application est assez performante. Sans parler du plaisir de la voir tourner, “pour de vrai” :)</em></p>
+<h1>Préparation du build Android</h1>
+<p>Si vous ne l’avez pas fait à l’installation d’Unity, il faudra pour builder vers le casque avoir installé les modules Android. Dans Unity Hub, sur l’installation d’Unity qui vous intéresse, faites Add modules, et il faut à la fois cocher “Android build support”, ainsi qu’en dessous “Android SDK &amp; NDK Tools” et “OpenJDK”</p>
+<ol>
+<li>Edit &gt; Project settings &gt; Player<ul>
+<li>Choisir l’onglet Android</li>
+<li>Minimum API level : API Level 23</li>
+</ul>
+</li>
+<li>Edit &gt; Project Settings &gt; XR Plug-in management &gt; Oculus<ul>
+<li>Passer Strereo Rendering mode en “Multiview”</li>
+</ul>
+</li>
+<li>Build settings<ul>
+<li>Platform : choisir Android</li>
+<li>Texture compression ASTC :</li>
+<li>Switch platform</li>
+<li>pensez à faire “Add open scenes” avec les scènes à livrer dans le build</li>
+</ul>
+</li>
+<li>Pour améliorer le rendu et les performance de votre application, suivez les conseils de la section “Define Quality settigns” de cette page <a href="https://developer.oculus.com/documentation/unity/unity-conf-settings/?device=QUEST#set-quality-options">https://developer.oculus.com/documentation/unity/unity-conf-settings/?device=QUEST#set-quality-options</a><ul>
+<li>à minima, il faut dans Edit &gt; Project Settings &gt; Quality, sélectionez la qualité de votre build Android (medium par défaut), et mettre 4x pour l’antialiasing</li>
+</ul>
+</li>
+</ol>
+<p>Remarque 1 : pour optimiser vos réglages, cet article rentre plus dans le détail des options nécessaires : <a href="https://developer.oculus.com/blog/tech-note-unity-settings-for-mobile-vr/">https://developer.oculus.com/blog/tech-note-unity-settings-for-mobile-vr/</a></p>
+<p>Remarque 2 : Dans les versions précédentes d’Unity, pour pouvoir cibler la target Android, il fallait installer Android Studio. Cela peut toujours être intéressant pour du debbugage. Pour plus d’info sur l’ancienne procédure:</p>
+<ul>
+<li><a href="https://developer.oculus.com/documentation/native/android/mobile-studio-setup-android/">https://developer.oculus.com/documentation/native/android/mobile-studio-setup-android/</a></li>
+<li><a href="https://medium.com/inborn-experience/how-to-build-an-app-for-the-oculus-go-from-start-to-finish-with-unity-cb72d931ddae">https://medium.com/inborn-experience/how-to-build-an-app-for-the-oculus-go-from-start-to-finish-with-unity-cb72d931ddae</a></li>
+</ul>
+<h1>Passer en mode développeur</h1>
+<p>Pour que votre casque accepte des applications ne venant pas du store, il faut le passer en mode développeur.</p>
+<p>Pour cela, il faut se créer un compte développeur, gratuit, ici <a href="https://dashboard.oculus.com/">https://dashboard.oculus.com/</a></p>
+<p>Il faudra également faire “créer une organisation”.</p>
+<p>Il faudra ensuite aller sur votre smartphone dans l'application mobile associée à votre casque, et activer le mode développeur (paramètres &gt; cliquez sur le chevron à droite de votre casque &gt;  autres paramètres &gt; paramètres avancés &gt; Mode développeur).</p>
+<p>Enfin, en mettant le casque sur la tête lors de la première installation, un message vous demandera si vous faites bien confiance à cet ordinateur.</p>
+<h1>Débugger sur Oculus Quest</h1>
+<p>Si vous avez installé Android Studio, les commandes principales :</p>
+<p><code>adb logcat -s Unity</code> permettra d’obtenir les log Unity</p>
+<p><code>adb logcat -s VrApi</code>permettra d’obtenir les log brut du framerate (sur Oculus Quest, il faut viser un 72 FPS quasi permanent : se téléporter, ou un chargement peut autoriser de baisser un peu pendant quelques frames, mais ça doit rester très rare pour ne pas rendre malade l’utilisateur)</p>
+<p>adb permet également d’avoir des info plus précises sur la consommation mémoire. Sur ce sujet : <a href="https://developer.android.com/studio/command-line/dumpsys#meminfo">https://developer.android.com/studio/command-line/dumpsys#meminfo</a></p>
+<p>Si vous n’avez pas installé Android Studio, l’outil permettant de livrer une version de test, SideQuest, décrit plus bas, fournit quelques options de débuggage permettant d’accéder à logcat notamment.</p>
+<h1>Livrer/faire tester</h1>
+<p>Un build Oculus Quest est un .apk classique.</p>
+<p>Un <code>adb install</code> permettra donc de l’installer si le casque est branché à l’ordinateur.</p>
+<p>Unity lui même en phase de build Android peut faire ce déploiement en choisissant Build and Run.</p>
+<p>Mais pour des personnes à qui on voudrait faire tester l'application et n’ayant pas d’environnement de développement, installer Android Studio (ou Unity), n’est pas vraiment une solution.</p>
+<p>Il existe pour cela une application très pratique, s’appelant Sidequest : <a href="https://sidequestvr.com/">https://sidequestvr.com/</a>
+Sachant qu’il faudra tout de même que votre testeur crée un compte développeur, mais le site ré-explique tout ici : <a href="https://sidequestvr.com/setup-howto">https://sidequestvr.com/setup-howto</a></p>
+<p>Pour plus d'informations: <a href="https://developer.oculus.com/blog/introducing-app-lab-a-new-way-to-distribute-oculus-quest-apps/?utm_source=social&amp;utm_medium=ofd-tw">https://developer.oculus.com/blog/introducing-app-lab-a-new-way-to-distribute-oculus-quest-apps/?utm_source=social&amp;utm_medium=ofd-tw</a></p>
+<p><em>Suite du tutorial: <a href="/oculus-quest-vr-intro-4.html">Partie 4 - Système de grab "from scratch"</a></em></p>
+<p><strong><a href="https://github.com/gizmhail/blog/issues/3">Accès aux commentaires</a></strong></p>
+    </div><!-- /.entry-content -->
+
+  </article>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="https://getpelican.com/">Pelican</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="https://twitter.com/spoivre">@spoivre</a></li>
+                            <li><a href="https://twitter.com/gizmhail">Personal account: @gizmhail</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>
