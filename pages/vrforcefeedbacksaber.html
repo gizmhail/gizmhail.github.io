@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+        <meta charset="utf-8" />
+        <meta name="generator" content="Pelican" />
+        <title>VR pseudo-haptic force feedback for fencing</title>
+        <link rel="stylesheet" href="/theme/css/main.css" />
+</head>
+
+<body id="index" class="home">
+        <header id="banner" class="body">
+                <h1><a href="/">Gizmhail's blog</a></h1>
+                <nav><ul>
+                    <li><a href="/category/vr.html">VR</a></li>
+                </ul></nav>
+        </header><!-- /#banner -->
+<section id="content" class="body">
+    <h1 class="entry-title">VR pseudo-haptic force feedback for fencing</h1>
+    
+    <p><strong>Skill</strong>: <em>Pseudo-haptic feedback, VR, Unity</em><br>
+<strong>Context</strong>: Personal project (2019)</p>
+<p>These dev aims at making the user feel the resistance of a saber they are holding in virtual reality, without dedicated haptic hardware, other than the classical controllers.</p>
+<p>To do so, for one saber, I have in fact 2 sabers : </p>
+<ul>
+<li>one is the virtual reality version: it is a "normal" object, affected by the physics engine forces, blocked by other objects, ... </li>
+<li>one is the "IRL" ghost version : it can be grabbed with your VR controllers, but it cannot be blocked by anything (kinematic rigid body, to be more precise). If you really had a saber in your real life hand, it would be located exactly where you see this object. Thanks to my collision matrix settings, those 2 object can't collide together (in fact, the IRL version can just interact with the hand objects, that's all)</li>
+</ul>
+<p>Then, "when needed" (ie when the VR saber is blocked, and so, out of sync with the IRL one), I apply forces so that the VR saber tries to join back the IRL one (and retrieve its orientation). I apply these force more or less at the grab position. And while the saber are not merged back, I make the controller vibrate, proportionally to the distance of the 2 saber version. To have a nice movements, for the moment I use an article by Digital Opus (http://digitalopus.ca/site/pd-controllers/) that explain how to have nice force based movements to a given position.</p>
+<p>The magic is that our brain is tricked by 3 things :</p>
+<ul>
+<li>while the sabers are out of sync, the vibration is a bit unconfortable: we feel that there is a slight resistance, that our hand is not where it could normally be</li>
+<li>the ghost saber make it acceptable anyway: we "see" our real hand, there is no "where is my hand ??" effect (It works even better as we can see where is the saber "IRL"...even if it does not exists)</li>
+<li>... while the VR saber is where we would expect in the VR world we are immerged</li>
+</ul>
+</section>
+        <section id="extras" class="body">
+                <div class="blogroll">
+                        <h2>links</h2>
+                        <ul>
+                            <li><a href="https://getpelican.com/">Pelican</a></li>
+                        </ul>
+                </div><!-- /.blogroll -->
+                <div class="social">
+                        <h2>social</h2>
+                        <ul>
+
+                            <li><a href="https://twitter.com/spoivre">@spoivre</a></li>
+                            <li><a href="https://twitter.com/gizmhail">Personal account: @gizmhail</a></li>
+                        </ul>
+                </div><!-- /.social -->
+        </section><!-- /#extras -->
+
+        <footer id="contentinfo" class="body">
+                <address id="about" class="vcard body">
+                Proudly powered by <a href="https://getpelican.com/">Pelican</a>, which takes great advantage of <a href="https://www.python.org/">Python</a>.
+                </address><!-- /#about -->
+
+                <p>The theme is by <a href="https://www.smashingmagazine.com/2009/08/designing-a-html-5-layout-from-scratch/">Smashing Magazine</a>, thanks!</p>
+        </footer><!-- /#contentinfo -->
+
+</body>
+</html>
