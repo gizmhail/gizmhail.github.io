@@ -103,6 +103,64 @@
 
 
 <p><strong>Warning</strong>: keep in mind, as described in Jason Weimann's and  Dilmer Valecillos's videos, that any content (scene, prefabs, ...) imported from addressables has to be manually released, with Addressables.UnloadSceneAsync for scenes and Addresslabes.Release for others, as well as GameObject instanciated with Addressables.InstantiateAsync from such imported prefabs, with Addressables.ReleaseInstance.</p>
+<h3>Offline mode</h3>
+<p>A problem associated with remote content, is of course the problem occuring when either the hosting server or the client themself are offline, as well has the data cost.</p>
+<p>Concerning this last point, along the json catalgo, a hash file is created. As long as this file is available, and has not changed,  an Unity app will try to use the cached resources downloaded before before downloading the full content again.</p>
+<p>The main problem is web the hash itself is not available. I was not able to find an elegant way to require the Addressables to use a cached hash when it is unreachable, but the following workaround works. The adressables system offers some callback to customize the requested id, or to even change the requested url. Here, we'll use a <a href="https://docs.unity.cn/Packages/com.unity.addressables@1.19/manual/TransformInternalId.html#webrequest-override">WebRequest override</a> before trying to fetch the catalog:</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">private</span> <span class="k">void</span> <span class="nf">EditWebRequestURL</span><span class="p">(</span><span class="n">UnityWebRequest</span> <span class="n">request</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">allowOfflineMode</span> <span class="p">&amp;&amp;</span> <span class="n">request</span><span class="p">.</span><span class="n">url</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="s">&quot;.hash&quot;</span><span class="p">))</span>
+        <span class="p">{</span>
+            <span class="kt">string</span> <span class="n">savePath</span> <span class="p">=</span> <span class="n">SavePath</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">url</span><span class="p">);</span>
+            <span class="n">Debug</span><span class="p">.</span><span class="n">LogError</span><span class="p">(</span><span class="s">&quot;Cache path for &quot;</span><span class="p">+</span><span class="n">request</span><span class="p">.</span><span class="n">url</span><span class="p">+</span><span class="s">&quot;: &quot;</span> <span class="p">+</span> <span class="n">savePath</span><span class="p">);</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">System</span><span class="p">.</span><span class="n">IO</span><span class="p">.</span><span class="n">File</span><span class="p">.</span><span class="n">Exists</span><span class="p">(</span><span class="n">savePath</span><span class="p">))</span>
+            <span class="p">{</span>
+                <span class="n">Debug</span><span class="p">.</span><span class="n">LogError</span><span class="p">(</span><span class="s">&quot;Using cached hash&quot;</span><span class="p">);</span>
+                <span class="n">request</span><span class="p">.</span><span class="n">url</span> <span class="p">=</span> <span class="err">$</span><span class="s">&quot;file://{savePath}&quot;</span><span class="p">;</span>
+            <span class="p">}</span>
+            <span class="k">else</span>
+            <span class="p">{</span> 
+                <span class="n">StartCoroutine</span><span class="p">(</span><span class="n">CacheHash</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">url</span><span class="p">));</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="kt">string</span> <span class="nf">SavePath</span><span class="p">(</span><span class="kt">string</span> <span class="n">url</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="kt">string</span> <span class="n">savePath</span> <span class="p">=</span> <span class="kt">string</span><span class="p">.</span><span class="n">Format</span><span class="p">(</span><span class="s">&quot;{0}/{1}&quot;</span><span class="p">,</span> <span class="n">Application</span><span class="p">.</span><span class="n">persistentDataPath</span><span class="p">,</span> <span class="n">Path</span><span class="p">.</span><span class="n">GetFileName</span><span class="p">(</span><span class="n">url</span><span class="p">));</span>
+        <span class="k">return</span> <span class="n">savePath</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">IEnumerator</span> <span class="nf">CacheHash</span><span class="p">(</span><span class="kt">string</span> <span class="n">url</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">using</span> <span class="p">(</span><span class="n">UnityWebRequest</span> <span class="n">www</span> <span class="p">=</span> <span class="n">UnityWebRequest</span><span class="p">.</span><span class="n">Get</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
+        <span class="p">{</span>
+            <span class="k">yield</span> <span class="k">return</span> <span class="n">www</span><span class="p">.</span><span class="n">SendWebRequest</span><span class="p">();</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">www</span><span class="p">.</span><span class="n">result</span> <span class="p">!=</span> <span class="n">UnityWebRequest</span><span class="p">.</span><span class="n">Result</span><span class="p">.</span><span class="n">Success</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">Debug</span><span class="p">.</span><span class="n">Log</span><span class="p">(</span><span class="n">www</span><span class="p">.</span><span class="n">error</span><span class="p">);</span>
+            <span class="p">}</span>
+            <span class="k">else</span>
+            <span class="p">{</span>
+                <span class="kt">string</span> <span class="n">savePath</span> <span class="p">=</span> <span class="n">SavePath</span><span class="p">(</span><span class="n">url</span><span class="p">);</span>
+                <span class="n">System</span><span class="p">.</span><span class="n">IO</span><span class="p">.</span><span class="n">File</span><span class="p">.</span><span class="n">WriteAllText</span><span class="p">(</span><span class="n">savePath</span><span class="p">,</span> <span class="n">www</span><span class="p">.</span><span class="n">downloadHandler</span><span class="p">.</span><span class="n">text</span><span class="p">);</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="n">IEnumerator</span> <span class="nf">Start</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">Addressables</span><span class="p">.</span><span class="n">WebRequestOverride</span> <span class="p">=</span> <span class="n">EditWebRequestURL</span><span class="p">;</span>
+        <span class="c1">//Load a catalog and automatically release the operation handle.</span>
+
+        <span class="k">yield</span> <span class="k">return</span> <span class="nf">FetchCatalogUrl</span><span class="p">(</span><span class="n">catalogDiscoveryUrl</span><span class="p">);</span>
+
+        <span class="n">AsyncOperationHandle</span><span class="p">&lt;</span><span class="n">IResourceLocator</span><span class="p">&gt;</span> <span class="n">handle</span> <span class="p">=</span> <span class="n">Addressables</span><span class="p">.</span><span class="n">LoadContentCatalogAsync</span><span class="p">(</span><span class="n">catalogUrl</span><span class="p">);</span>
+        <span class="c1">// .... See previous implementation</span>
+    <span class="p">}</span>
+</code></pre></div>
+
+
 <h2>Reference</h2>
 <ul>
 <li><a href="https://unity.com/fr/how-to/simplify-your-content-management-addressables">https://unity.com/fr/how-to/simplify-your-content-management-addressables</a></li>
@@ -110,6 +168,7 @@
 <li><a href="https://docs.unity3d.com/Packages/com.unity.addressables@1.19/manual/LoadContentCatalogAsync.html">https://docs.unity3d.com/Packages/com.unity.addressables@1.19/manual/LoadContentCatalogAsync.html</a></li>
 <li><a href="https://learn.unity.com/tutorial/addressables-introduction-to-concepts#">https://learn.unity.com/tutorial/addressables-introduction-to-concepts#</a></li>
 <li><a href="https://www.raywenderlich.com/14494028-introduction-to-modding-unity-games-with-addressables">https://www.raywenderlich.com/14494028-introduction-to-modding-unity-games-with-addressables</a></li>
+<li><a href="https://docs.unity.cn/Packages/com.unity.addressables@1.19/manual/TransformInternalId.html">https://docs.unity.cn/Packages/com.unity.addressables@1.19/manual/TransformInternalId.html</a></li>
 </ul>                </article>
             </aside><!-- /#featured -->
                 <section id="content" class="body">
