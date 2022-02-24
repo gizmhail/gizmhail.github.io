@@ -12,184 +12,14 @@
                 <h1><a href="/">Sébastien Poivre's blog</a></h1>
                 <nav><ul>
                     <li><a href="/pages/resume.html">Resume</a></li>
+                    <li><a href="/category/unity.html">Unity</a></li>
                     <li class="active"><a href="/category/vr.html">VR</a></li>
                 </ul></nav>
         </header><!-- /#banner -->
 
             <aside id="featured" class="body">
                 <article>
-                    <h1 class="entry-title"><a href="/multi-project-adressables.html">Unity addressables: Add content at runtime, even using a second project (mods, …)</a></h1>
-<footer class="post-info">
-        <abbr class="published" title="2022-02-09T23:00:00+01:00">
-                Published: mer. 09 février 2022
-        </abbr>
-
-        <address class="vcard author">
-                By                         <a class="url fn" href="/author/sebastien-poivre-aka-gizmhail.html">Sébastien Poivre (aka Gizmhail)</a>
-        </address>
-<p>In <a href="/category/vr.html">VR</a>.</p>
-<p>tags: <a href="/tag/unity.html">Unity</a> <a href="/tag/tutorial.html">Tutorial</a> <a href="/tag/development.html">Development</a> <a href="/tag/mods.html">Mods</a> </p>
-</footer><!-- /.post-info --><h1>Unity Addressables</h1>
-<p>If you want to create Unity mods, or simply be able to ask another team to build part of your app without having all of it at hands, the Unity Addressables system is for you.</p>
-<p>This system allows you to split your project content in several parts, like Asset Bundles would allow you (the Addressables system is built upon the Asset Bundles one).</p>
-<p>In a local configuration, it is already a very convenient way to accelerate loading time, or to use memory more efficiently.</p>
-<p>These 2 videos will help you using it:</p>
-<ul>
-<li><a href="https://www.youtube.com/watch?v=uNpBS0LPhaU">How Unity3D Addressables make assetbundles easy and your project faster</a></li>
-<li><a href="https://www.youtube.com/watch?v=0USXRC9f4Iw">How To Use Unity Addressables For Beginners Part 1 (Setup &amp; Loading Assets)</a> </li>
-</ul>
-<p>You can also use a remote configuration, to be able to greatly decrease your app size, by requesting the user to load the part they need at runtime, only if they need it (new levels, new customizable assets, ...).</p>
-<p>This video (along with the following parts 3 and 4) will guide you to use it for these use cases:</p>
-<ul>
-<li><a href="https://www.youtube.com/watch?v=cl_2icxKCyQ">How To Use Unity Addressables For Beginners Part 2 (Remote Assets)</a> </li>
-</ul>
-<h1>Remote addressables, with catalog shared between 2 projects</h1>
-<p>But you can go even further with the adressables :)</p>
-<p>The catalog that you build in your project, does not have to be in your project, and can also be part of the things you fetch at runtime.</p>
-<p>This way, you can have your main project fetching a catalog and its related aressables assets that were built in another project, unrelated to yours.</p>
-<p>You still have to define in advance what to do with these assets, but with a but of predefined convention, you can build a full mod support with this. Or even more crazy things (*<em> insert mysterious music</em> * ) that I may have in mind ;)</p>
-<p>It is not a hack, and is properly supported and documented on Unity side: <a href="https://docs.unity3d.com/Packages/com.unity.addressables@1.19/manual/MultiProject.html">Adressables: Loading from Multiple Projects</a> </p>
-<h3>Capabilities</h3>
-<p>It is very powerful, however keep in mind that you won’t be able to add new code with this.</p>
-<p>To sum up these capabilities:</p>
-<h4>Can</h4>
-<ul>
-<li><strong>Organization</strong>: Add project parts at runtime</li>
-<li><strong>Organization</strong>: Split software parts into several projects that do not know each other</li>
-<li><strong>Assets</strong>: add any assets to the project at runtime, material, prefabs, … and instantiate them</li>
-<li><strong>Scenes</strong>: Load remote scene, or add them in additive mode</li>
-<li><strong>Code</strong>: Add to game objects mono behavior known to both projects (Unity components, shared packages from scoped repositories, or simply copied/pasted code between the two projects)</li>
-</ul>
-<h4>Can not</h4>
-<ul>
-<li><strong>Code</strong>: add new code</li>
-<li><strong>Code</strong>: add a new loading behavior (“what” to do with new content has to be planned in advance: “load the scene with xxx prefix”, “spawn all prefabs based on another remote config file”, …)</li>
-</ul>
-<h3>How to</h3>
-<p>To set up your projects in this splitted configuration (a main project, load asset from a child project), first configure your <strong>child project</strong> as seen in the video explaining how to set remote addressable assets. </p>
-<p>You will have, uploaded to a server, this kind of structure:</p>
-<p><img alt="alt_text" src="images/multi-project-adressables-1.png" title="Structure"></p>
-<p>Then, in the <strong>main project</strong>, you have to use <a href="https://docs.unity3d.com/Packages/com.unity.addressables@1.19/manual/LoadContentCatalogAsync.html">LoadContentCatalogAsync</a>to load the catalog, using the url of the JSON catalog file that you uploaded for the child project.</p>
-<p>For instance, to load it :</p>
-<div class="highlight"><pre><span></span><code>    <span class="k">public</span> <span class="n">IEnumerator</span> <span class="nf">Start</span><span class="p">()</span>
-    <span class="p">{</span>
-        <span class="kt">string</span> <span class="n">catalogUrl</span> <span class="p">=</span> <span class="s">&quot;http://&lt;your_host&gt;/StandaloneWindows64/catalog_2022.02.09.21.09.53.json&quot;</span><span class="p">;</span>
-        <span class="n">AsyncOperationHandle</span><span class="p">&lt;</span><span class="n">IResourceLocator</span><span class="p">&gt;</span> <span class="n">handle</span> <span class="p">=</span> <span class="n">Addressables</span><span class="p">.</span><span class="n">LoadContentCatalogAsync</span><span class="p">(</span><span class="n">catalogUrl</span><span class="p">);</span>
-
-        <span class="n">handle</span><span class="p">.</span><span class="n">Completed</span> <span class="p">+=</span> <span class="p">(</span><span class="k">async</span><span class="p">)</span> <span class="p">=&gt;</span>
-        <span class="p">{</span>
-            <span class="k">if</span> <span class="p">(</span><span class="k">async</span><span class="p">.</span><span class="n">Status</span> <span class="p">==</span> <span class="n">AsyncOperationStatus</span><span class="p">.</span><span class="n">Failed</span><span class="p">)</span>
-            <span class="p">{</span>
-                <span class="n">Debug</span><span class="p">.</span><span class="n">LogError</span><span class="p">(</span><span class="s">&quot;Unable to fetch child project content&quot;</span><span class="p">);</span>
-            <span class="p">}</span>
-            <span class="k">else</span>
-            <span class="p">{</span>
-                <span class="k">foreach</span> <span class="p">(</span><span class="kt">var</span> <span class="n">k</span> <span class="k">in</span> <span class="k">async</span><span class="p">.</span><span class="n">Result</span><span class="p">.</span><span class="n">Keys</span><span class="p">)</span> <span class="p">{</span>
-                    <span class="n">Debug</span><span class="p">.</span><span class="n">Log</span><span class="p">(</span><span class="err">$</span><span class="s">&quot;{k} {k.GetType()}&quot;</span><span class="p">);</span>
-                    <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="k">is</span> <span class="kt">string</span> <span class="p">&amp;&amp;</span> <span class="p">((</span><span class="kt">string</span><span class="p">)</span><span class="n">k</span><span class="p">).</span><span class="n">Contains</span><span class="p">(</span><span class="s">&quot;Scene&quot;</span><span class="p">))</span>
-                    <span class="p">{</span>
-                        <span class="n">Debug</span><span class="p">.</span><span class="n">Log</span><span class="p">(</span><span class="s">&quot;Loaded &quot;</span> <span class="p">+</span> <span class="p">(</span><span class="kt">string</span><span class="p">)</span><span class="n">k</span><span class="p">);</span>
-                        <span class="n">Addressables</span><span class="p">.</span><span class="n">LoadSceneAsync</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">UnityEngine</span><span class="p">.</span><span class="n">SceneManagement</span><span class="p">.</span><span class="n">LoadSceneMode</span><span class="p">.</span><span class="n">Additive</span><span class="p">);</span>
-                    <span class="p">}</span>
-
-                    <span class="k">if</span> <span class="p">(</span><span class="n">k</span> <span class="k">is</span> <span class="kt">string</span> <span class="p">&amp;&amp;</span> <span class="p">((</span><span class="kt">string</span><span class="p">)</span><span class="n">k</span><span class="p">).</span><span class="n">Contains</span><span class="p">(</span><span class="s">&quot;prefab&quot;</span><span class="p">))</span>
-                    <span class="p">{</span>
-                        <span class="n">Debug</span><span class="p">.</span><span class="n">Log</span><span class="p">(</span><span class="s">&quot;Loaded &quot;</span> <span class="p">+</span> <span class="p">(</span><span class="kt">string</span><span class="p">)</span><span class="n">k</span><span class="p">);</span>
-                        <span class="n">Addressables</span><span class="p">.</span><span class="n">InstantiateAsync</span><span class="p">(</span><span class="n">k</span><span class="p">,</span> <span class="n">transform</span><span class="p">.</span><span class="n">position</span><span class="p">,</span> <span class="n">transform</span><span class="p">.</span><span class="n">rotation</span><span class="p">);</span>
-                    <span class="p">}</span>
-                <span class="p">}</span>
-            <span class="p">}</span>
-        <span class="p">};</span>
-
-        <span class="k">yield</span> <span class="k">return</span> <span class="n">handle</span><span class="p">;</span>
-    <span class="p">}</span>
-</code></pre></div>
-
-
-<p><strong>Warning</strong>: keep in mind, as described in Jason Weimann's and  Dilmer Valecillos's videos, that any content (scene, prefabs, ...) imported from addressables has to be manually released, with Addressables.UnloadSceneAsync for scenes and Addresslabes.Release for others, as well as GameObject instanciated with Addressables.InstantiateAsync from such imported prefabs, with Addressables.ReleaseInstance.</p>
-<h3>Offline mode</h3>
-<p>A problem associated with remote content, is of course the problem occuring when either the hosting server or the client themself are offline, as well has the data cost.</p>
-<p>Concerning this last point, along the json catalgo, a hash file is created. As long as this file is available, and has not changed,  an Unity app will try to use the cached resources downloaded before downloading the full content again.</p>
-<p>The main problem is when the hash itself is not available. I was not able to find an elegant way to require the Addressables to use a cached hash when it is unreachable, but the following workaround works. The adressables system offers some callback to customize the requested id, or to even change the requested url. Here, we'll use a <a href="https://docs.unity.cn/Packages/com.unity.addressables@1.19/manual/TransformInternalId.html#webrequest-override">WebRequest override</a> before trying to fetch the catalog:</p>
-<div class="highlight"><pre><span></span><code>    <span class="k">private</span> <span class="k">void</span> <span class="nf">EditWebRequestURL</span><span class="p">(</span><span class="n">UnityWebRequest</span> <span class="n">request</span><span class="p">)</span>
-    <span class="p">{</span>
-        <span class="k">if</span> <span class="p">(</span><span class="n">allowOfflineMode</span> <span class="p">&amp;&amp;</span> <span class="n">request</span><span class="p">.</span><span class="n">url</span><span class="p">.</span><span class="n">Contains</span><span class="p">(</span><span class="s">&quot;.hash&quot;</span><span class="p">))</span>
-        <span class="p">{</span>
-            <span class="kt">string</span> <span class="n">savePath</span> <span class="p">=</span> <span class="n">SavePath</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">url</span><span class="p">);</span>
-            <span class="n">Debug</span><span class="p">.</span><span class="n">LogError</span><span class="p">(</span><span class="s">&quot;Cache path for &quot;</span><span class="p">+</span><span class="n">request</span><span class="p">.</span><span class="n">url</span><span class="p">+</span><span class="s">&quot;: &quot;</span> <span class="p">+</span> <span class="n">savePath</span><span class="p">);</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">System</span><span class="p">.</span><span class="n">IO</span><span class="p">.</span><span class="n">File</span><span class="p">.</span><span class="n">Exists</span><span class="p">(</span><span class="n">savePath</span><span class="p">))</span>
-            <span class="p">{</span>
-                <span class="n">Debug</span><span class="p">.</span><span class="n">LogError</span><span class="p">(</span><span class="s">&quot;Using cached hash&quot;</span><span class="p">);</span>
-                <span class="n">request</span><span class="p">.</span><span class="n">url</span> <span class="p">=</span> <span class="err">$</span><span class="s">&quot;file://{savePath}&quot;</span><span class="p">;</span>
-            <span class="p">}</span>
-            <span class="k">else</span>
-            <span class="p">{</span> 
-                <span class="n">StartCoroutine</span><span class="p">(</span><span class="n">CacheHash</span><span class="p">(</span><span class="n">request</span><span class="p">.</span><span class="n">url</span><span class="p">));</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-
-    <span class="kt">string</span> <span class="nf">SavePath</span><span class="p">(</span><span class="kt">string</span> <span class="n">url</span><span class="p">)</span>
-    <span class="p">{</span>
-        <span class="kt">string</span> <span class="n">savePath</span> <span class="p">=</span> <span class="kt">string</span><span class="p">.</span><span class="n">Format</span><span class="p">(</span><span class="s">&quot;{0}/{1}&quot;</span><span class="p">,</span> <span class="n">Application</span><span class="p">.</span><span class="n">persistentDataPath</span><span class="p">,</span> <span class="n">Path</span><span class="p">.</span><span class="n">GetFileName</span><span class="p">(</span><span class="n">url</span><span class="p">));</span>
-        <span class="k">return</span> <span class="n">savePath</span><span class="p">;</span>
-    <span class="p">}</span>
-
-    <span class="n">IEnumerator</span> <span class="nf">CacheHash</span><span class="p">(</span><span class="kt">string</span> <span class="n">url</span><span class="p">)</span>
-    <span class="p">{</span>
-        <span class="k">using</span> <span class="p">(</span><span class="n">UnityWebRequest</span> <span class="n">www</span> <span class="p">=</span> <span class="n">UnityWebRequest</span><span class="p">.</span><span class="n">Get</span><span class="p">(</span><span class="n">url</span><span class="p">))</span>
-        <span class="p">{</span>
-            <span class="k">yield</span> <span class="k">return</span> <span class="n">www</span><span class="p">.</span><span class="n">SendWebRequest</span><span class="p">();</span>
-            <span class="k">if</span> <span class="p">(</span><span class="n">www</span><span class="p">.</span><span class="n">result</span> <span class="p">!=</span> <span class="n">UnityWebRequest</span><span class="p">.</span><span class="n">Result</span><span class="p">.</span><span class="n">Success</span><span class="p">)</span>
-            <span class="p">{</span>
-                <span class="n">Debug</span><span class="p">.</span><span class="n">Log</span><span class="p">(</span><span class="n">www</span><span class="p">.</span><span class="n">error</span><span class="p">);</span>
-            <span class="p">}</span>
-            <span class="k">else</span>
-            <span class="p">{</span>
-                <span class="kt">string</span> <span class="n">savePath</span> <span class="p">=</span> <span class="n">SavePath</span><span class="p">(</span><span class="n">url</span><span class="p">);</span>
-                <span class="n">System</span><span class="p">.</span><span class="n">IO</span><span class="p">.</span><span class="n">File</span><span class="p">.</span><span class="n">WriteAllText</span><span class="p">(</span><span class="n">savePath</span><span class="p">,</span> <span class="n">www</span><span class="p">.</span><span class="n">downloadHandler</span><span class="p">.</span><span class="n">text</span><span class="p">);</span>
-            <span class="p">}</span>
-        <span class="p">}</span>
-    <span class="p">}</span>
-
-    <span class="k">public</span> <span class="n">IEnumerator</span> <span class="nf">Start</span><span class="p">()</span>
-    <span class="p">{</span>
-        <span class="n">Addressables</span><span class="p">.</span><span class="n">WebRequestOverride</span> <span class="p">=</span> <span class="n">EditWebRequestURL</span><span class="p">;</span>
-        <span class="c1">//Load a catalog and automatically release the operation handle.</span>
-
-        <span class="k">yield</span> <span class="k">return</span> <span class="nf">FetchCatalogUrl</span><span class="p">(</span><span class="n">catalogDiscoveryUrl</span><span class="p">);</span>
-
-        <span class="n">AsyncOperationHandle</span><span class="p">&lt;</span><span class="n">IResourceLocator</span><span class="p">&gt;</span> <span class="n">handle</span> <span class="p">=</span> <span class="n">Addressables</span><span class="p">.</span><span class="n">LoadContentCatalogAsync</span><span class="p">(</span><span class="n">catalogUrl</span><span class="p">);</span>
-        <span class="c1">// .... See previous implementation</span>
-    <span class="p">}</span>
-</code></pre></div>
-
-
-<h2>Reference</h2>
-<ul>
-<li><a href="https://unity.com/fr/how-to/simplify-your-content-management-addressables">https://unity.com/fr/how-to/simplify-your-content-management-addressables</a></li>
-<li><a href="https://docs.unity3d.com/Packages/com.unity.addressables@1.19/manual/index.html">https://docs.unity3d.com/Packages/com.unity.addressables@1.19/manual/index.html</a></li>
-<li><a href="https://docs.unity3d.com/Packages/com.unity.addressables@1.19/manual/LoadContentCatalogAsync.html">https://docs.unity3d.com/Packages/com.unity.addressables@1.19/manual/LoadContentCatalogAsync.html</a></li>
-<li><a href="https://learn.unity.com/tutorial/addressables-introduction-to-concepts#">https://learn.unity.com/tutorial/addressables-introduction-to-concepts#</a></li>
-<li><a href="https://www.raywenderlich.com/14494028-introduction-to-modding-unity-games-with-addressables">https://www.raywenderlich.com/14494028-introduction-to-modding-unity-games-with-addressables</a></li>
-<li><a href="https://docs.unity.cn/Packages/com.unity.addressables@1.19/manual/TransformInternalId.html">https://docs.unity.cn/Packages/com.unity.addressables@1.19/manual/TransformInternalId.html</a></li>
-<li><a href="https://docs.unity.cn/Packages/com.unity.addressables@1.19/manual/TransformInternalId.html">https://docs.unity.cn/Packages/com.unity.addressables@1.19/manual/TransformInternalId.html</a></li>
-</ul>
-<hr>
-<p><strong><a href="https://github.com/gizmhail/gizmhail.github.io/issues/5">Post a comment</a></strong></p>                </article>
-            </aside><!-- /#featured -->
-                <section id="content" class="body">
-                    <h1>Other articles</h1>
-                    <hr />
-                    <ol id="posts-list" class="hfeed">
-
-            <li><article class="hentry">
-                <header>
-                    <h1><a href="/oculus-quest-vr-intro-4.html" rel="bookmark"
-                           title="Permalink to Débuter en réalité virtuelle avec Unity et Oculus Quest - Système de grab “from scratch” (partie 4)">Débuter en réalité virtuelle avec Unity et Oculus Quest - Système de grab “from scratch” (partie 4)</a></h1>
-                </header>
-
-                <div class="entry-content">
+                    <h1 class="entry-title"><a href="/oculus-quest-vr-intro-4.html">Débuter en réalité virtuelle avec Unity et Oculus Quest - Système de grab “from scratch” (partie 4)</a></h1>
 <footer class="post-info">
         <abbr class="published" title="2021-02-06T23:30:00+01:00">
                 Published: sam. 06 février 2021
@@ -200,11 +30,234 @@
         </address>
 <p>In <a href="/category/vr.html">VR</a>.</p>
 <p>tags: <a href="/tag/oculus-quest.html">Oculus Quest</a> <a href="/tag/vr.html">VR</a> <a href="/tag/xr.html">XR</a> <a href="/tag/tutorial.html">Tutorial</a> <a href="/tag/development.html">Development</a> <a href="/tag/oculus-quest-dev-intro.html">Oculus quest Dev Intro</a> </p>
-</footer><!-- /.post-info -->                <p>Dans un projet en réalité virtuelle, comme abordé en <a href="/oculus-quest-vr-intro-2.html">partie 2</a>, une partie critique est la stack d'interaction : comment gérer le fait d’attraper des objets, se déplacer/téléporter, avoir des pointeurs, interagir avec l’UI, animer les mains, …</p>
-<p>Il est courant dans un projet de s’appuyer sur une …</p>
-                <a class="readmore" href="/oculus-quest-vr-intro-4.html">read more</a>
-                </div><!-- /.entry-content -->
-            </article></li>
+</footer><!-- /.post-info --><p>Dans un projet en réalité virtuelle, comme abordé en <a href="/oculus-quest-vr-intro-2.html">partie 2</a>, une partie critique est la stack d'interaction : comment gérer le fait d’attraper des objets, se déplacer/téléporter, avoir des pointeurs, interagir avec l’UI, animer les mains, …</p>
+<p>Il est courant dans un projet de s’appuyer sur une stack existante (VRTK, XRInteraction toolkit, …) ou une stack fournie par un constructeur spécifique en accompagnement de ses couches basses de détection de casque (Sample Framework dans Oculus Integration, SteamVR Interaction System dans SteamVR,  …)</p>
+<p>Cependant, à la fois pour la curiosité, mais aussi pour bien arriver à maîtriser ces stacks, il est intéressant de faire une fois “à la main” ces composants, au moins dans leur version naïve, pour comprendre les enjeux liés au moteur Unity, et pouvoir plus facilement debugger. C’est également utile plus tard dans la courbe de progression, si on commence à vouloir s’orienter vers des choses plus fines, car ces stacks peuvent limiter vos capacités en ayant trop “en dur” certains choix (autoriser ou non d’attraper plusieurs objets à la fois dans une même main, d’attraper à 2 mains, d’attraper main déjà fermée, de permettre à la physique d’interagir avec les mains et les objets tenus, …).</p>
+<p><strong>Néanmoins, si cela vous semble trop compliqué/abstrait pour le moment, n’hésitez pas à ignorer cette partie complètement : le but est plus d’attiser la curiosité que d’effrayer, et il est tout à fait possible de commencer à faire une application VR sans comprendre ce qu’on aborde ici. </strong></p>
+<h1>Choix sur l’interaction attendue</h1>
+<p>Nous allons donc voir ici comment très naïvement permettre avec juste les composants de base d’attraper en VR des objets (faire un “<em>grab</em>”).</p>
+<p>Concernant les choix d'interaction, j’ai fait une sélection dans l’idée d’arriver au code le plus simple possible tout en gardant quelque chose d’utilisable réellement :</p>
+<ul>
+<li>on veut pouvoir attraper librement un objet, pas sur une position précise</li>
+<li>si on attrape un objet avec une seconde main, il change de main (et on force l’utilisateur à arrêter de fermer la première main avant qu’elle ne puisse ré-attrapper, pour éviter une bataille de main :) )</li>
+<li>on ne permet donc pas d’attraper un objet à deux mains simultanément (pour le scaler, l’orienter, ou autre)</li>
+<li>une main ne peut attraper qu’un objet à la fois</li>
+<li>on ne tente pas de gérer avec le moteur physique les mains, ni les objets pendant qu’on les tient</li>
+</ul>
+<p>Avec ces choix, on peut uniquement se concentrer sur la base de la physique d’un “<em>grab</em>”.</p>
+<p><em>Remarque : Il y a de TRÈS nombreuses manières pertinentes de faire un grab, celle exposée ici n’est ni la plus élégante, ni le plus “puissante” (donnant le plus de possibilités), elle est vraiment essentiellement exposée à titre éducatif, n’hésitez pas à vous en éloigner fortement.</em></p>
+<h1>Physique d’un grab</h1>
+<p>Un <em>grab</em> se décompose en :</p>
+<ol>
+<li>détecter qu’une main (le <em>grabber</em>) est sur un objet attrapable (<em>grabbable</em>) à attraper (en <em>hover</em>)</li>
+<li>pendant que la main est en <em>hover</em>, si on appuie sur le bouton de <em>grab</em>, considérer le <em>grabbable</em> comme attrapé</li>
+<li>tant qu’il est attrappé, forcer le <em>grabbable</em> à suivre le <em>grabber</em></li>
+<li>lorsque le bouton est lâché, déverrouiller le <em>grabbable</em> et arrêter le suivi</li>
+</ol>
+<p><strong>Configuration des mains</strong></p>
+<p><em>TL;DR</em></p>
+<p>J’explique le pourquoi de la configuration des mains dans ce long chapitre, mais si le sujet vous effraye/ennuie, la conclusion en est simple, et directement utilisable :</p>
+<ul>
+<li>mettre un RigidBody sur l’objet représentant la main, le mettre en mode isKinematics</li>
+<li>mettre un Collider (quelconque : BoxCollider, …) sur la main, le mettre en mode isTrigger</li>
+</ul>
+<p><em>Version longue</em></p>
+<p>Unity permet facilement de gérer les collisions, mais aussi les chevauchements. Il propose de donner une forme détectable pour cela aux objets (pas nécessairement liée à leur forme graphique).</p>
+<p>Ces <em>colliders</em> permettent 2 choses:</p>
+<ul>
+<li>de détecter des collisions : 2 objets qui se touchent et vont potentiellement (suivant leur configuration) bouger de par les forces liées à ce contact, via le moteur physique d’Unity</li>
+<li>de déclencher un message de chevauchement</li>
+</ul>
+<p>A côté de cela, suivant que l’on veuille ou non qu’un objet soit pris en compte dans les forces gérées par le moteur physique, il est possible de mettre un composant <em>RigidBody</em> en plus sur un objet.</p>
+<p>Pour finir de faire le tour de nos options, il est aussi possible de dire au Rigidbody que nous gérerons la position de l’objet par script (il ne sera plus déplacé par les collisions, les articulations, …) mais qu’il “causera” tout de même des forces aux autres : ces objets pilotés à la main ont l’option “<em>isKinematics</em>” sur leur <em>RigidBody</em>.</p>
+<p>Nos choix soulignant que l’on ne veut pas gérer la physique, et que l’on s’intéresse à des chevauchements mais pas à des collisions, la sélection a faire semblerait être de ne mettre que des colliders, sans rigid body.</p>
+<p>Le souci est que les callback d’Unity ne nous arriveront pas si on ne fait que cela.</p>
+<p>Si vous voulez creuser ce sujet, une  page de la documentation d’Unity explique dans quels cas les callbacks sont déclenchés, et souligne aussi la philosophie derrière cela et les différents cas que l’on a décrit avant. Dès que l’on commence à faire des choses un peu avancées avec Unity, elle est à garder dans ses bookmarks :) : <a href="https://docs.unity3d.com/Manual/CollidersOverview.html">https://docs.unity3d.com/Manual/CollidersOverview.html</a></p>
+<p>Donc, chaque main va devoir avoir un <em>RigidBody</em>.</p>
+<p>Mais, on compte la déplacer via script (lié à la position physique des contrôleurs hardware), donc il faut qu’il soit en mode <em>isKinematics</em>: nous sommes en contrôle de la position.</p>
+<p>N’étant pas intéressé par déclencher des collisions (il devient difficile d’attraper des objets si on les pousse en approchant la main), nos <em>colliders</em> de mains seront en mode <em>isTrigger</em> : on ne fait que détecter les chevauchements.</p>
+<p>Avec cette configuration des mains, on pourra détecter des objets à attraper dans différentes configurations de leur côté (avec ou sans <em>RigidBody</em>, avec des collider en mode <em>isTrigger</em> ou non).</p>
+<h1>Position relative des objets</h1>
+<p>Une fois un objet attrapé, il doit suivre la main.</p>
+<p>Un des choix possible (et souvent adapté) aurait été de dire que quand on attrappe un objet, celui-ci se loge automatiquement au centre de la main. A partir de la, suivre la main pour le <em>grabbable</em> aurait juste été prendre la position et la rotation de la main.</p>
+<p>Mais ici, on veut pouvoir attrapper naturellement un objet, donc n’importe où, sans effet de magnétisation au creux de la main, de <em>snap</em>.</p>
+<p>Il faut donc enregistrer le décalage par rapport au centre de la main au moment du grab, et appliquer ensuite en permanence ce décalage lors du suivi.</p>
+<p>Pour la position, Unity propose des méthodes pour trouver les coordonnées relatives par rapport à un référentiel d’un point en coordonnées globales :</p>
+<ul>
+<li>pour enregistrer le décalage de position, en coordonnées relative donc : <em>InverseTransformPoint</em></li>
+<li>pour appliquer un décalage et obtenir de nouveau des coordonnées globales : <em>TransformPoint</em></li>
+</ul>
+<p>Pour la rotation, le fait qu’elle soit exprimée en Quaternion (pour résumer/simplifier : des matrices que l’on peut multiplier pour cumuler les rotations qu’elles représentent) dans Unity permet par calcul sur ceux-ci d’obtenir directement ce que l’on veut :</p>
+<ul>
+<li>pour enregistrer le décalage de position : R<sub>décalage</sub> = R<sub>référentiel</sub><sup>-1</sup> x R<sub>grabbable</sub></li>
+<li>pour appliquer un décalage et obtenir de nouveau des coordonnées globales : R<sub>grabbable</sub> = R<sub>référentiel</sub> x R<sub>décalage</sub></li>
+</ul>
+<p><em>&lt;optionnel&gt;</em></p>
+<p><em>Remarque sur le calcul</em> :</p>
+<p>Pour mieux les comprendre/mémoriser, il vaut mieux commencer par lire le calcul pour ré-appliquer le décalage sauvé. R<sub>grabbable</sub> = R<sub>référentiel</sub> * R<sub>décalage</sub> revient juste à dire qu’une rotation en absolu est obtenue en prenant la rotation d’un référentiel, et en y ajoutant la rotation relative à ce référentiel.</p>
+<p>Le calcul pour obtenir comment sauver le décalage en découle directement. En effet, si on prend cette première expression, et qu’on multiplie à gauche chaque membre de l’égalité par R<sub>référentiel</sub><sup>-1</sup>,  (R<sub>référentiel</sub><sup>-1</sup> x R<sub>référentiel</sub>) devient la matrice identité et disparaît, nous donnant la formule finale.</p>
+<p><em>&lt;/optionnel&gt;</em></p>
+<h1>Code</h1>
+<p>Une fois ces 2 points durs traités, le code le plus naïf répondant à nos choix est assez simple, vous pourrez le trouver ci-dessous.</p>
+<p><strong>Grabber</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span> <span class="nn">UnityEngine</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">UnityEngine.InputSystem</span><span class="p">;</span>
+
+<span class="k">public</span> <span class="k">interface</span> <span class="n">IGrabbable</span>
+<span class="p">{</span>
+    <span class="n">Grabber</span> <span class="n">CurrentGrabber</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="p">}</span>
+    <span class="kt">bool</span> <span class="n">IsGrabbed</span> <span class="p">{</span> <span class="k">get</span><span class="p">;</span> <span class="p">}</span>
+    <span class="k">void</span> <span class="nf">OnGrab</span><span class="p">(</span><span class="n">Grabber</span> <span class="n">newGrabber</span><span class="p">);</span>
+    <span class="k">void</span> <span class="nf">OnUngrab</span><span class="p">();</span>
+<span class="p">}</span>
+
+<span class="na">[RequireComponent(typeof(Rigidbody))]</span>
+<span class="k">public</span> <span class="k">class</span> <span class="nc">Grabber</span> <span class="p">:</span> <span class="n">MonoBehaviour</span>
+<span class="p">{</span>
+    <span class="k">public</span> <span class="n">InputAction</span> <span class="n">grabAction</span><span class="p">;</span>
+    <span class="kt">bool</span> <span class="n">isGrabbing</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+    <span class="n">Rigidbody</span> <span class="n">rigidBody</span><span class="p">;</span>
+    <span class="n">IGrabbable</span> <span class="n">grabbedObject</span><span class="p">;</span>
+
+    <span class="k">void</span> <span class="nf">Awake</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">// Input action</span>
+        <span class="n">grabAction</span><span class="p">.</span><span class="n">performed</span> <span class="p">+=</span> <span class="n">OnGrabStart</span><span class="p">;</span>
+        <span class="n">grabAction</span><span class="p">.</span><span class="n">canceled</span> <span class="p">+=</span> <span class="n">OnGrabEnd</span><span class="p">;</span>
+        <span class="n">grabAction</span><span class="p">.</span><span class="n">Enable</span><span class="p">();</span>
+
+        <span class="c1">// Rigidbody settings</span>
+        <span class="n">rigidBody</span> <span class="p">=</span> <span class="n">GetComponent</span><span class="p">&lt;</span><span class="n">Rigidbody</span><span class="p">&gt;();</span>
+        <span class="n">rigidBody</span><span class="p">.</span><span class="n">isKinematic</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span> <span class="c1">// Our controller is driven by IRL inputs, and hence cannot be driven by engine physics</span>
+    <span class="p">}</span>
+
+    <span class="cp">#region Input action callabcks</span>
+    <span class="k">private</span> <span class="k">void</span> <span class="nf">OnGrabStart</span><span class="p">(</span><span class="n">InputAction</span><span class="p">.</span><span class="n">CallbackContext</span> <span class="n">obj</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">isGrabbing</span> <span class="p">=</span> <span class="k">true</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">private</span> <span class="k">void</span> <span class="nf">OnGrabEnd</span><span class="p">(</span><span class="n">InputAction</span><span class="p">.</span><span class="n">CallbackContext</span> <span class="n">obj</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">isGrabbing</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="cp">#endregion</span>
+
+    <span class="cp">#region Collision handling</span>
+    <span class="k">private</span> <span class="k">void</span> <span class="nf">OnTriggerStay</span><span class="p">(</span><span class="n">Collider</span> <span class="n">other</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(</span><span class="n">grabbedObject</span> <span class="p">!=</span> <span class="k">null</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="c1">// It is already the grabbed object or another, but we don&#39;t allow shared grabbing here</span>
+            <span class="k">return</span><span class="p">;</span>
+        <span class="p">}</span>
+        <span class="c1">// Note: in real life exemple, we should not GetComponent on each Stay, for performance issues</span>
+        <span class="c1">// A more relevant implementation would require to store a list of hovered colliders and matching IGrabbables,</span>
+        <span class="c1">//  detected during OnTriggerEnter</span>
+        <span class="kt">var</span> <span class="n">grabbable</span> <span class="p">=</span> <span class="n">other</span><span class="p">.</span><span class="n">GetComponent</span><span class="p">&lt;</span><span class="n">Grabbable</span><span class="p">&gt;();</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">grabbable</span> <span class="p">!=</span> <span class="k">null</span> <span class="p">&amp;&amp;</span> <span class="n">isGrabbing</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">grabbable</span><span class="p">.</span><span class="n">IsGrabbed</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="c1">// Force hand swap</span>
+                <span class="n">grabbable</span><span class="p">.</span><span class="n">OnUngrab</span><span class="p">();</span>
+            <span class="p">}</span>
+            <span class="n">grabbable</span><span class="p">.</span><span class="n">OnGrab</span><span class="p">(</span><span class="k">this</span><span class="p">);</span>
+            <span class="n">grabbedObject</span> <span class="p">=</span> <span class="n">grabbable</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+    <span class="cp">#endregion</span>
+
+    <span class="k">private</span> <span class="k">void</span> <span class="nf">Update</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">grabbedObject</span> <span class="p">!=</span> <span class="k">null</span> <span class="p">&amp;&amp;</span> <span class="p">!</span><span class="n">isGrabbing</span> <span class="p">&amp;&amp;</span> <span class="n">grabbedObject</span><span class="p">.</span><span class="n">IsGrabbed</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="c1">// Object released by this hand</span>
+            <span class="n">grabbedObject</span><span class="p">.</span><span class="n">OnUngrab</span><span class="p">();</span>
+        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">grabbedObject</span> <span class="p">!=</span> <span class="k">null</span> <span class="p">&amp;&amp;</span> <span class="n">grabbedObject</span><span class="p">.</span><span class="n">CurrentGrabber</span> <span class="p">!=</span> <span class="k">this</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="c1">// Hand swap</span>
+            <span class="n">grabbedObject</span> <span class="p">=</span> <span class="k">null</span><span class="p">;</span>
+            <span class="c1">// We force isGrabbing a flase to avoid this hand to catch any object again while it has not be opened and closed again</span>
+            <span class="n">isGrabbing</span> <span class="p">=</span> <span class="k">false</span><span class="p">;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<p><strong>Grabbable</strong></p>
+<div class="highlight"><pre><span></span><code><span class="k">using</span> <span class="nn">System.Collections</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">System.Collections.Generic</span><span class="p">;</span>
+<span class="k">using</span> <span class="nn">UnityEngine</span><span class="p">;</span>
+
+<span class="k">public</span> <span class="k">class</span> <span class="nc">Grabbable</span> <span class="p">:</span> <span class="n">MonoBehaviour</span><span class="p">,</span> <span class="n">IGrabbable</span>
+<span class="p">{</span>
+    <span class="n">Grabber</span> <span class="n">grabber</span> <span class="p">=</span> <span class="k">null</span><span class="p">;</span>
+    <span class="n">Vector3</span> <span class="n">positionOffset</span><span class="p">;</span>
+    <span class="n">Quaternion</span> <span class="n">rotationOffset</span><span class="p">;</span>
+
+
+    <span class="cp">#region IGrabbable</span>
+    <span class="k">public</span> <span class="kt">bool</span> <span class="n">IsGrabbed</span> <span class="p">=&gt;</span> <span class="n">grabber</span> <span class="p">!=</span> <span class="k">null</span><span class="p">;</span>
+
+    <span class="k">public</span> <span class="n">Grabber</span> <span class="n">CurrentGrabber</span> <span class="p">=&gt;</span> <span class="n">grabber</span><span class="p">;</span>
+
+
+    <span class="k">public</span> <span class="k">void</span> <span class="nf">OnGrab</span><span class="p">(</span><span class="n">Grabber</span> <span class="n">newGrabber</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">grabber</span> <span class="p">=</span> <span class="n">newGrabber</span><span class="p">;</span>
+        <span class="c1">// Find grabbable position/rotation in grabber referential</span>
+        <span class="n">positionOffset</span> <span class="p">=</span> <span class="n">newGrabber</span><span class="p">.</span><span class="n">transform</span><span class="p">.</span><span class="n">InverseTransformPoint</span><span class="p">(</span><span class="n">transform</span><span class="p">.</span><span class="n">position</span><span class="p">);</span>
+        <span class="n">rotationOffset</span> <span class="p">=</span> <span class="n">Quaternion</span><span class="p">.</span><span class="n">Inverse</span><span class="p">(</span><span class="n">newGrabber</span><span class="p">.</span><span class="n">transform</span><span class="p">.</span><span class="n">rotation</span><span class="p">)</span> <span class="p">*</span> <span class="n">transform</span><span class="p">.</span><span class="n">rotation</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">public</span> <span class="k">void</span> <span class="nf">OnUngrab</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">grabber</span> <span class="p">=</span> <span class="k">null</span><span class="p">;</span>
+    <span class="p">}</span>
+    <span class="cp">#endregion</span>
+
+    <span class="k">private</span> <span class="k">void</span> <span class="nf">Update</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">if</span> <span class="p">(!</span><span class="n">IsGrabbed</span><span class="p">)</span> <span class="k">return</span><span class="p">;</span>
+        <span class="c1">// Follow grabber, adding position/rotation offsets</span>
+        <span class="n">transform</span><span class="p">.</span><span class="n">position</span> <span class="p">=</span> <span class="n">grabber</span><span class="p">.</span><span class="n">transform</span><span class="p">.</span><span class="n">TransformPoint</span><span class="p">(</span><span class="n">positionOffset</span><span class="p">);</span>
+        <span class="n">transform</span><span class="p">.</span><span class="n">rotation</span> <span class="p">=</span> <span class="n">grabber</span><span class="p">.</span><span class="n">transform</span><span class="p">.</span><span class="n">rotation</span> <span class="p">*</span> <span class="n">rotationOffset</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<h1>Mise en place</h1>
+<p>En repartant de ce qu’on avait partie 2, il faut ici :</p>
+<ul>
+<li>ajouter un composant <em>Grabber</em> sur les objets représentant chaque main</li>
+<li>cocher <em>isKinematics</em> sur le <em>RigidBody</em> qui s’est ajouté sur les mains (le script <em>Grabber</em> le fait aussi si vous oubliez)</li>
+<li>ajouter un collider en mode <em>isTrigger</em> sur les mains (le plus rapide : ajouter un cube, passer en <em>isTrigger</em> son <em>BoxCollider</em>, et réduire sa taille, par exemple à 0.05/0.05/0.05)</li>
+<li>créer des objets à manipuler, ayant un collider, et leur ajouter le script <em>Grabbable</em></li>
+</ul>
+<h1>Remarque : gestion physique du <em>grabbable</em> une fois relâché</h1>
+<p>Si jamais le <em>grabbable</em> que l’on attrape est sensible aux forces “en temps normal” (quand il n’est pas tenu en main), donc avec un rigodBody et pas en mode <em>isKinematics</em>, il faudra penser à la mettre en <em>isKinematics</em> tant qu’il est tenu en main (et le remettre dans son état initial une fois relaché).</p>
+<p>En effet, comme dans l’implémentation de suivi qu’on a fait ici, on modifie manuellement sa position, le laisser subir en même temps les forces du moteur physiques arriverait à un résultat incohérent.</p>
+<p>Il est bien sûr possible d'implémenter un mode de suivi lui permettant de respecter sa gestion des forces physiques.</p>
+<p>XRInteraction Toolkit, en version preview pour le moment mais réalisé par Unity, propose par exemple un mode de suivi (velocity tracking) permettant cela.</p>
+<p><strong><a href="https://github.com/gizmhail/gizmhail.github.io/issues/4">Accès aux commentaires</a></strong>
+<style>
+sub {
+   font-size:80%;
+   vertical-align:sub;
+}
+sup {
+   font-size:80%;
+   vertical-align:super;
+</style></p>                </article>
+            </aside><!-- /#featured -->
+                <section id="content" class="body">
+                    <h1>Other articles</h1>
+                    <hr />
+                    <ol id="posts-list" class="hfeed">
 
             <li><article class="hentry">
                 <header>
